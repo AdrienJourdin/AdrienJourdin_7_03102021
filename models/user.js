@@ -5,6 +5,7 @@ const User=function(user){
     this.lastName=user.lastName;
     this.email=user.email;
     this.password=user.password;
+
 };
 
 

@@ -2,6 +2,7 @@ const express = require('express');
 const connection =require('./models/db.js');
 const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
+
 bodyParser = require('body-parser');
 
 //Création de l'app
@@ -16,7 +17,7 @@ app.use((req, res, next) => {
   });
   app.use(bodyParser.json());
   app.use('/api/auth', userRoutes);
-
+  app.use('/api/post',postRoutes);
 
 //Export de l'app  
 module.exports = app;

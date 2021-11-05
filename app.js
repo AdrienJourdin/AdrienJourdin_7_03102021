@@ -1,8 +1,7 @@
 const express = require('express');
-const connection =require('./models/db.js');
 const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
-
+const db = require("./config/db.config.js");
 bodyParser = require('body-parser');
 
 //Création de l'app
@@ -18,6 +17,11 @@ app.use((req, res, next) => {
   app.use(bodyParser.json());
   app.use('/api/auth', userRoutes);
   app.use('/api/post',postRoutes);
+
+
+  db.sequelize.sync({ force: true }).then(() => {
+    console.log("Drop and Resync with { force: true }");
+  });
 
 //Export de l'app  
 module.exports = app;

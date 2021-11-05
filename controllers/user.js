@@ -1,8 +1,8 @@
 //import du modele
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
-const User = require("../models/User");
-
+const db = require("../config/db.config.js");
+const User = db.user;
 
 exports.signup = (req, res) => {
   // Validate request
@@ -13,21 +13,23 @@ exports.signup = (req, res) => {
   }
 
   bcrypt.hash(req.body.password, 10).then((hash) => {
-    const user = new User({
-      email: req.body.email,
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      password: hash,
-    });
-    // Sauvegarde de l'utilisateur dans la BDD en utilisant la méthode create
-    User.create(user, (err, data) => {
-      if (err)
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while creating the Customer.",
-        });
-      else res.send(data);
-    });
+
+        // Sauvegarde de l'user dans ma database
+        User.create({
+          lastName: req.body.lastName,
+          firstName: req.body.firstName,
+          password: hash,
+          email: req.body.email,
+          role: req.body.role,
+        }).then((user) => {
+          res.status(200).send({
+            status: true,
+            message: "user created successfully",
+          });
+          
+        })
+        .catch(error => res.status(500).send({ error }));
+
   });
 };
 

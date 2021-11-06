@@ -12,5 +12,8 @@ router.post('/signup', userCtrl.signup);
 router.get('/login',userCtrl.login);
 router.delete('/delete/:userId',userCtrl.delete);
 router.put('/update/:userId',userCtrl.update);
+router.get('/:userId',userCtrl.getOne);
+router.get('/',userCtrl.getAll);
+
 //Export des routes
 module.exports = router;

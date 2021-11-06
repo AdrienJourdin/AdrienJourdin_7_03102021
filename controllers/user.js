@@ -57,22 +57,19 @@ exports.login = (req, res, next) => {
 };
 
 exports.delete = (req, res) => {
-    console.log(req.params.userId);
-  User.destroy({where :{id:req.params.userId}})
-  .then(()=>{
-    res.status(200).send({
+  console.log(req.params.userId);
+  User.destroy({ where: { id: req.params.userId } })
+    .then(() => {
+      res.status(200).send({
         status: true,
         message: "User deleted successfully with id = " + req.params.userId,
+      });
+    })
+    .catch((error) =>
+      res.status(500).send({
+        message: "erreur lors de la suppression de l'utilisateur",
       })
-      
-  }
-  )
-  .catch((error) =>
-  res
-    .status(500)
-    .send({
-      message: "erreur lors de la suppression de l'utilisateur",
-    }));
+    );
 };
 
 exports.update = (req, res) => {
@@ -96,14 +93,48 @@ exports.update = (req, res) => {
           });
         })
         .catch((error) =>
-          res
-            .status(500)
-            .send({
-              message: "erreur lors de la mise à jour des infos du user",
-            })
+          res.status(500).send({
+            message: "erreur lors de la mise à jour des infos du user",
+          })
         );
     })
     .catch((error) =>
       res.status(500).send({ message: "Erreur lors du cryptage du mdp" })
     );
+};
+
+exports.getOne = (req, res) => {
+  User.findOne({ where: { id: req.params.userId } })
+    .then((user) => {
+      if (user == null) {
+        return res.status(401).send({ error: "Utilisateur introuvable" });
+      }
+      res.status(200).send({
+        userId: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+      });
+    })
+    .catch((error) => res.status(401).send({ error }));
+};
+
+exports.getAll = (req, res) => {
+  User.findAll()
+    .then((users) => {
+        let usersWithoutPassword=[];
+        for (let user of users){
+            let userInfos={
+                userId: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                role: user.role,
+            };
+            usersWithoutPassword.push(userInfos);
+        }
+        res.status(200).send(usersWithoutPassword)
+    })
+    .catch((error) => res.status(401).send({ error }));
 };

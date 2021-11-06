@@ -15,13 +15,11 @@ app.use((req, res, next) => {
     next();
   });
   app.use(bodyParser.json());
-  app.use('/api/auth', userRoutes);
+  app.use('/api/user', userRoutes);
   app.use('/api/post',postRoutes);
 
 
-  db.sequelize.sync({ force: true }).then(() => {
-    console.log("Drop and Resync with { force: true }");
-  });
+  db.sequelize.sync({ alter: true });
 
 //Export de l'app  
 module.exports = app;

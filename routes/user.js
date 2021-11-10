@@ -10,8 +10,8 @@ const userCtrl = require('../controllers/user');
 //Definition des routes
 router.post('/signup', userCtrl.signup);
 router.get('/login',userCtrl.login);
-router.delete('/delete/:userId',userCtrl.delete);
-router.put('/update/:userId',userCtrl.update);
+router.delete('/:userId',userCtrl.delete);
+router.put('/:userId',userCtrl.update);
 router.get('/:userId',userCtrl.getOne);
 router.get('/',userCtrl.getAll);
 

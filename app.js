@@ -1,7 +1,7 @@
 const express = require('express');
 const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
-const db = require("./config/db.config.js");
+const db = require("./models");
 bodyParser = require('body-parser');
 
 //Création de l'app

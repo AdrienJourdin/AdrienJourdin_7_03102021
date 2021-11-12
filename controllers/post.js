@@ -3,9 +3,10 @@ const Post = db.post;
 const User = db.user;
 const Like = db.like;
 const Comment = db.comment;
+const recupUserId = require("../middleware/recupUserIdWithToken");
 
-exports.create = (req, res) => {
-  const userId = req.body.userId;
+exports.create = async (req, res) => {
+    const userId = recupUserId.recupUserIdWithToken(req);
   //Vérification de l'existence de l'utilisateur
   User.findOne({ where: { id: userId } })
     .then((user) => {
@@ -15,19 +16,17 @@ exports.create = (req, res) => {
       }
     })
     .catch((error) => {
-      res
-        .status(500)
-        .send({
-          error,
-          message: "Erreur lors de la recherche de l'utilisateur id=" + userId,
-        });
+      res.status(500).send({
+        error,
+        message: "Erreur lors de la recherche de l'utilisateur id=" + userId,
+      });
     });
 
   //Si il existe => appel de la fonction de création
   Post.create({
     title: req.body.title,
     content: req.body.content,
-    userId: req.body.userId,
+    userId: userId,
   })
     .then((post) => {
       res.status(200).send({
@@ -164,7 +163,7 @@ exports.update = (req, res) => {
 exports.delete = (req, res) => {
   const postId = req.params.postId;
   Post.destroy({ where: { id: req.params.postId } })
-    .then(post => {
+    .then((post) => {
       if (!post) {
         return res
           .status(400)

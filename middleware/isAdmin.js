@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const db = require("../models");
 const User = db.user;
 
-//Middleware qui permet de vérifier si l'utilisateur du token
+//Middleware qui permet de vérifier si l'utilisateur est un admin
 module.exports = async (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
@@ -10,7 +10,7 @@ module.exports = async (req, res, next) => {
     const userId = decodedToken.userId;
     try {
       const user = await User.findOne({ where: { id: userId } });
-      if (user) {
+      if (user.role="admin") {
         next();
       } else {
         res.status(400).send({ message: "Utilisateur inconnu" });

@@ -3,22 +3,23 @@ const Post = db.post;
 const User = db.user;
 const Like = db.like;
 const Comment = db.comment;
+const recupUserId=require('../middleware/recupUserIdWithToken');
 
 exports.create = (req, res) => {
-  const userId = req.body.userId;
+  const userId = recupUserId.recupUserIdWithToken(req);
   const postId = req.params.postId;
-  User.findOne({ where: { id: userId } })
-    .then((user) => {
-      if (!user) {
+  Post.findOne({ where: { id: postId } })
+    .then((post) => {
+      if (!post) {
         res
           .status(400)
-          .send({ message: "Utilisateur id=" + userId + " inconnu" });
+          .send({ message: "Publication id=" + postId + " inconnue" });
       }
     })
     .catch((error) => {
       res.status(500).send({
         error,
-        message: "Erreur lors de la recherche de l'utilisateur id=" + userId,
+        message: "Erreur lors de la recherche de la publication id=" + postId,
       });
     });
   Comment.create({
@@ -33,7 +34,7 @@ exports.create = (req, res) => {
       });
     })
     .catch((error) =>
-      res.status(400).send({
+      res.status(500).send({
         message: "Erreur lors de la publication de votre commentaire",
         error,
       })

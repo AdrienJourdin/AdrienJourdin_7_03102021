@@ -6,7 +6,7 @@ const Comment = db.comment;
 
 exports.like = (req, res) => {
     const postId = req.params.postId;
-    const userId=req.body.userId;
+    const userId = recupUserId.recupUserIdWithToken(req);
     //Recherche de l'existence de la publication
     Post.findOne({ where: { id: postId } })
       .then((post) => {

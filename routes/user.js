@@ -1,5 +1,6 @@
 const express = require('express');
 const auth = require('../middleware/auth');
+const verifInfosUser=require('../middleware/informationsUserValidation');
 
 //Creation de la route
 const router = express.Router();
@@ -8,7 +9,7 @@ const router = express.Router();
 const userCtrl = require('../controllers/user');
 
 //Definition des routes
-router.post('/signup', userCtrl.signup);
+router.post('/signup',verifInfosUser, userCtrl.signup);
 router.get('/login',userCtrl.login);
 router.delete('/:userId',userCtrl.delete);
 router.put('/:userId',userCtrl.update);

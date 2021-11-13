@@ -3,7 +3,7 @@ const Post = db.post;
 const User = db.user;
 const Like = db.like;
 const Comment = db.comment;
-const recupUserId=require('../middleware/recupUserIdWithToken');
+const recupUserId = require("../middleware/recupUserIdWithToken");
 
 exports.create = (req, res) => {
   const userId = recupUserId.recupUserIdWithToken(req);
@@ -42,11 +42,7 @@ exports.create = (req, res) => {
 };
 
 exports.delete = (req, res) => {
-  const userId = req.body.userId;
-  const postId = req.params.postId;
   const commentId = req.params.commentId;
-  //Vérfification de l'existence du commentaire
-
   Comment.destroy({ where: { id: commentId } })
     .then((comment) => {
       if (!comment) {
@@ -68,47 +64,25 @@ exports.delete = (req, res) => {
 
 exports.update = (req, res) => {
   const commentId = req.params.commentId;
-  //Recherche de l'existence du commentaire
-  Comment.findOne({ where: { id: commentId } })
-    .then((comment) => {
-      //Si il n'existe pas => renvoi d'un message d'erreur
-      if (!comment) {
-          
-        return res
-          .status(400)
-          .send({ message: "Commentaire id=" + commentId + " Introuvable" });
-      }else{
-          //Si il existe => appel de la fonction de mise à jour
-        Post.update(
-            {
-              content: req.body.content,
-            },
-            { where: { id: commentId } }
-          )
-            .then(() => {
-              res.status(200).json({
-                status: true,
-                message: "Mise a jour du commentaire id = " + commentId,
-              });
-            })
-            .catch((error) =>
-              res.status(500).send({
-                message: "Erreur lors de la mise à jour du commentaire id=" + commentId,
-                error,
-              })
-            );
-      }
-    })
-    .catch((error) => {
-      res.status(500).send({
-        error,
-        message: "Erreur lors de la recherche du commentaire id=" + commentId,
+
+  Comment.update(
+    {
+      content: req.body.content,
+    },
+    { where: { id: commentId } }
+  )
+    .then(() => {
+      res.status(200).json({
+        status: true,
+        message: "Mise a jour du commentaire id = " + commentId,
       });
-    });
-
-
-
-  
+    })
+    .catch((error) =>
+      res.status(500).send({
+        message: "Erreur lors de la mise à jour du commentaire id=" + commentId,
+        error,
+      })
+    );
 };
 
 exports.getOne = (req, res) => {

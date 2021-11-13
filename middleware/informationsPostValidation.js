@@ -1,6 +1,4 @@
-
-
-//Middleware qui permet de vérifier si l'utilisateur du token
+//Middleware qui permet de vérifier le contenu d'un post avant sa création
 exports.verifPost =  (req, res, next) => {
   const title=req.body.title;
   const content=req.body.content;
@@ -13,11 +11,11 @@ exports.verifPost =  (req, res, next) => {
       next();
   }
 };
-
+//Middleware qui permet de vérifier le contenu d'un commentaire avant sa création
 exports.verifComment =  (req, res, next) => {
     const content=req.body.content;
     if(content.length<3){
-        res.status(400).send({message:"Le titre de votre publication doit contenir plus de 3 caractères"})
+        res.status(400).send({message:"Le contenu de votre commentaire doit contenir plus de 3 caractères"})
     }else{
         next();
     }

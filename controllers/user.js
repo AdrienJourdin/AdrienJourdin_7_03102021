@@ -6,32 +6,10 @@ const Post = db.post;
 const User = db.user;
 const Like = db.like;
 const Comment = db.comment;
+const recupUserId = require("../middleware/recupUserIdWithToken");
 
 exports.signup = (req, res) => {
-  // Validate request
-  if (!req.body) {
-    res.status(400).send({
-      message: "Le contenue de votre requête ne doit pas être vide",
-    });
-  }
-  //Recherche d'un potentiel utilisateur ayant la même adresse email que celle de la requete
-  User.findOne({ where: { email: req.body.email } })
-    .then((user) => {
-      //Si c'est le cas => retour d'un message d'erreur
-      if (user) {
-        return res
-          .status(401)
-          .send({ message: "Un utilisateur possède déjà cette adresse email" });
-      }
-    })
-    .catch((error) => {
-      res.status(500).send({
-        error,
-        message:
-          "Erreur lors de la recherche d'utilisateur avec l'email :" +
-          req.body.email,
-      });
-    });
+
   //Hashage du mot de passe
   bcrypt.hash(req.body.password, 10).then((hash) => {
     // Sauvegarde de l'user dans ma database
@@ -94,7 +72,7 @@ exports.login = (req, res, next) => {
 };
 
 exports.delete = (req, res) => {
-  const userId = req.params.userId;
+  const userId = recupUserId.recupUserIdWithToken(req);
   //Recherche de l'existence de l'utilisateur
   User.findOne({ where: { id: userId } })
     .then((user) => {
@@ -128,7 +106,7 @@ exports.delete = (req, res) => {
 };
 
 exports.update = (req, res) => {
-  const userId = req.params.userId;
+  const userId = recupUserId.recupUserIdWithToken(req);
   const email=req.body.email;
   //Recherche de l'existence de l'utilisateur
   User.findOne({ where: { id: userId } })

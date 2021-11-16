@@ -122,7 +122,7 @@ exports.getOne = (req, res) => {
 exports.update = (req, res) => {
   const postId = req.params.postId;
 
-  Comment.findOne({ where: { id: postId } })
+  Post.findOne({ where: { id: postId } })
     .then((post) => {
       //Si il n'existe pas => renvoi d'un message d'erreur
       if (!post) {

@@ -9,7 +9,6 @@ const Comment = db.comment;
 const recupUserId = require("../middleware/recupUserIdWithToken");
 
 exports.signup = (req, res) => {
-
   //Hashage du mot de passe
   bcrypt.hash(req.body.password, 10).then((hash) => {
     // Sauvegarde de l'user dans ma database
@@ -72,7 +71,7 @@ exports.login = (req, res, next) => {
 };
 
 exports.delete = (req, res) => {
-  const userId = recupUserId.recupUserIdWithToken(req);
+  const userId = req.params.userId;
   //Recherche de l'existence de l'utilisateur
   User.findOne({ where: { id: userId } })
     .then((user) => {
@@ -81,6 +80,21 @@ exports.delete = (req, res) => {
         return res
           .status(401)
           .send({ message: "Utilisateur id=" + userId + " Introuvable" });
+      } else {
+        //Si l'utilisateur existe => appel de la fonction destroy pour supprimer son compte
+        User.destroy({ where: { id: userId } })
+          .then(() => {
+            res.status(200).send({
+              status: true,
+              message: "User deleted successfully with id = " + userId,
+            });
+          })
+          .catch((error) =>
+            res.status(500).send({
+              message:
+                "erreur lors de la suppression de l'utilisateur id=" + userId,
+            })
+          );
       }
     })
     .catch((error) => {
@@ -89,25 +103,11 @@ exports.delete = (req, res) => {
         message: "erreur lors de la recherche de l'utilisateur id=" + userId,
       });
     });
-
-  //Si l'utilisateur existe => appel de la fonction destroy pour supprimer son compte
-  User.destroy({ where: { id: userId } })
-    .then(() => {
-      res.status(200).send({
-        status: true,
-        message: "User deleted successfully with id = " + userId,
-      });
-    })
-    .catch((error) =>
-      res.status(500).send({
-        message: "erreur lors de la suppression de l'utilisateur id=" + userId,
-      })
-    );
 };
 
 exports.update = (req, res) => {
-  const userId = recupUserId.recupUserIdWithToken(req);
-  const email=req.body.email;
+  const userId = req.params.userId;
+  const email = req.body.email;
   //Recherche de l'existence de l'utilisateur
   User.findOne({ where: { id: userId } })
     .then((user) => {
@@ -116,46 +116,38 @@ exports.update = (req, res) => {
         return res
           .status(401)
           .send({ message: "Utilisateur id=" + userId + " Introuvable" });
-      //Si il existe vérification de l'existence de l'adresse mail en BDD    
-      }else{
-        User.findOne({where: { email: email }})
-        .then(user=>{
-          //Si le mail existe => envoi d'un message d'erreur
-          if(user){
-            return res.status(400).send({message:"Un utilisateur possède déjà cette adresse mail"})
-            //Si il n'existe pas => appel de la fonction update
-          }else{
-            bcrypt
-            .hash(req.body.password, 10)
-            .then((hash) => {
-              User.update(
-                {
-                  lastName: req.body.lastName,
-                  firstName: req.body.firstName,
-                  password: hash,
-                  email: req.body.email,
-                  role: req.body.role,
-                },
-                { where: { id:userId } }
-              )
-                .then(() => {
-                  res.status(200).json({
-                    status: true,
-                    message: "User updated successfully with id = " + userId,
-                  });
+        //Si il existe vérification de l'existence de l'adresse mail en BDD
+      } else {
+        bcrypt
+          .hash(req.body.password, 10)
+          .then((hash) => {
+            User.update(
+              {
+                lastName: req.body.lastName,
+                firstName: req.body.firstName,
+                password: hash,
+                email: req.body.email,
+                role: req.body.role,
+              },
+              { where: { id: userId } }
+            )
+              .then(() => {
+                res.status(200).json({
+                  status: true,
+                  message: "User updated successfully with id = " + userId,
+                });
+              })
+              .catch((error) =>
+                res.status(500).send({
+                  message:
+                    "erreur lors de la mise à jour des infos du user id=" +
+                    userId,
                 })
-                .catch((error) =>
-                  res.status(500).send({
-                    message: "erreur lors de la mise à jour des infos du user id="+userId,
-                  })
-                );
-            })
-            .catch((error) =>
-              res.status(500).send({ message: "Erreur lors du cryptage du mdp" })
-            );
-            
-          }
-        })
+              );
+          })
+          .catch((error) =>
+            res.status(500).send({ message: "Erreur lors du cryptage du mdp" })
+          );
       }
     })
     .catch((error) => {
@@ -164,10 +156,6 @@ exports.update = (req, res) => {
         message: "erreur lors de la recherche de l'utilisateur id=" + userId,
       });
     });
-
-
-
-
 };
 
 exports.getOne = (req, res) => {

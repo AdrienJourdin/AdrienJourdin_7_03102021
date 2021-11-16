@@ -18,7 +18,7 @@ router.get('/getLatest',auth,postCtrl.getLatest);
 router.get('/',auth, postCtrl.getAll);
 router.get('/:postId',auth, postCtrl.getOne);
 router.delete('/:postId', auth,verifAuthor,postCtrl.delete);
-router.put('/:postId',auth,verifContent.verifPost, postCtrl.update);
+router.put('/:postId',auth,verifAuthor,verifContent.verifPost, postCtrl.update);
 router.post('/:postId/like',auth,likeCtrl.like);
 router.post('/:postId/comment',auth,verifContent.verifComment,commentCtrl.create);
 router.delete('/comment/:commentId',auth,verifAuthor, commentCtrl.delete);

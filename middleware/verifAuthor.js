@@ -24,6 +24,7 @@ module.exports = async (req, res, next) => {
               .send({ message: "Publication id=" + postId + " introuvable " });
           }
           if (post.userId == userId) {
+              console.log("userId",userId);
             next();
           } else {
             res.status(400).send({

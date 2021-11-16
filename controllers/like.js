@@ -3,7 +3,7 @@ const Post = db.post;
 const User = db.user;
 const Like = db.like;
 const Comment = db.comment;
-
+const recupUserId = require("../middleware/recupUserIdWithToken");
 exports.like = (req, res) => {
     const postId = req.params.postId;
     const userId = recupUserId.recupUserIdWithToken(req);
@@ -44,12 +44,12 @@ exports.like = (req, res) => {
 
       //si la publication et l'utilisateur existe => recherche si un like existe
     Like.findOne({
-      where: { userId: req.body.userId, postId: req.params.postId },
+      where: { userId:userId, postId: req.params.postId },
     })
       .then((like) => {
         if (like) {
           Like.destroy({
-            where: { userId: req.body.userId, postId: req.params.postId },
+            where: { userId: userId, postId: req.params.postId },
           })
             .then(
               res
@@ -63,7 +63,7 @@ exports.like = (req, res) => {
             );
         } else {
           Like.create({
-            userId: req.body.userId,
+            userId: userId,
             postId: req.params.postId,
           })
             .then(

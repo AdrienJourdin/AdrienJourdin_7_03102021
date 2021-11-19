@@ -34,6 +34,7 @@ exports.signup = (req, res) => {
 };
 
 exports.login = (req, res, next) => {
+  console.log(req.body);
   User.findOne({ where: { email: req.body.email } })
     .then((user) => {
       console.log(user);
@@ -72,16 +73,7 @@ exports.login = (req, res, next) => {
 
 exports.delete = (req, res) => {
   const userId = req.params.userId;
-  //Recherche de l'existence de l'utilisateur
-  User.findOne({ where: { id: userId } })
-    .then((user) => {
-      //Si il n'existe pas => envoi d'un message d'erreur
-      if (!user) {
-        return res
-          .status(401)
-          .send({ message: "Utilisateur id=" + userId + " Introuvable" });
-      } else {
-        //Si l'utilisateur existe => appel de la fonction destroy pour supprimer son compte
+
         User.destroy({ where: { id: userId } })
           .then(() => {
             res.status(200).send({
@@ -95,29 +87,13 @@ exports.delete = (req, res) => {
                 "erreur lors de la suppression de l'utilisateur id=" + userId,
             })
           );
-      }
-    })
-    .catch((error) => {
-      res.status(500).send({
-        error,
-        message: "erreur lors de la recherche de l'utilisateur id=" + userId,
-      });
-    });
+      
+
+
 };
 
 exports.update = (req, res) => {
   const userId = req.params.userId;
-  const email = req.body.email;
-  //Recherche de l'existence de l'utilisateur
-  User.findOne({ where: { id: userId } })
-    .then((user) => {
-      //Si il n'existe pas => envoi d'un message d'erreur
-      if (!user) {
-        return res
-          .status(401)
-          .send({ message: "Utilisateur id=" + userId + " Introuvable" });
-        //Si il existe vérification de l'existence de l'adresse mail en BDD
-      } else {
         bcrypt
           .hash(req.body.password, 10)
           .then((hash) => {
@@ -127,7 +103,6 @@ exports.update = (req, res) => {
                 firstName: req.body.firstName,
                 password: hash,
                 email: req.body.email,
-                role: req.body.role,
               },
               { where: { id: userId } }
             )
@@ -148,14 +123,7 @@ exports.update = (req, res) => {
           .catch((error) =>
             res.status(500).send({ message: "Erreur lors du cryptage du mdp" })
           );
-      }
-    })
-    .catch((error) => {
-      res.status(500).send({
-        error,
-        message: "erreur lors de la recherche de l'utilisateur id=" + userId,
-      });
-    });
+
 };
 
 exports.getOne = (req, res) => {
@@ -197,7 +165,7 @@ exports.getOne = (req, res) => {
 
 exports.getAll = (req, res) => {
   User.findAll({
-    attributes: ["id", "lastName", "firstName", "email"],
+    attributes: ["id", "lastName", "firstName", "email","role"],
   })
     .then((users) => {
       res.status(200).send(users);

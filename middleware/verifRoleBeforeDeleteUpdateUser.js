@@ -1,6 +1,6 @@
 const db = require("../models");
 const User = db.user;
-const recupUserId = require("../middleware/recupUserIdWithToken");
+const recupUserId = require("./recupUserIdWithToken");
 
 module.exports = async (req, res, next) => {
   const userId = recupUserId.recupUserIdWithToken(req);

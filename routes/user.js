@@ -1,8 +1,9 @@
 const express = require('express');
 const auth = require('../middleware/auth');
 const verifInfosUser=require('../middleware/informationsUserValidation');
-const verifBeforeUpdateDelete=require('../middleware/verifBeforeUpdateDeleteUser');
-const verifRole=require('../middleware/verifRole');
+const verifRoleBeforeUpdateDelete=require('../middleware/verifRoleBeforeDeleteUpdateUser');
+const verifRoleSignup=require('../middleware/verifRoleBeforeSignUp');
+const VerifInfosBeforeUpdateUser=require('../middleware/VerifInfosBeforeUpdateUser')
 
 //Creation de la route
 const router = express.Router();
@@ -11,10 +12,10 @@ const router = express.Router();
 const userCtrl = require('../controllers/user');
 
 //Definition des routes
-router.post('/signup',verifRole,verifInfosUser, userCtrl.signup);
-router.get('/login',userCtrl.login);
-router.delete('/:userId',verifBeforeUpdateDelete,userCtrl.delete);
-router.put('/:userId',verifBeforeUpdateDelete,verifInfosUser,userCtrl.update);
+router.post('/signup',verifRoleSignup,verifInfosUser, userCtrl.signup);
+router.post('/login',userCtrl.login);
+router.delete('/:userId',verifRoleBeforeUpdateDelete,userCtrl.delete);
+router.put('/:userId',verifRoleBeforeUpdateDelete,VerifInfosBeforeUpdateUser,userCtrl.update);
 router.get('/:userId',userCtrl.getOne);
 router.get('/',userCtrl.getAll);
 

@@ -9,7 +9,7 @@ module.exports = async (req, res, next) => {
       if(req.body.passwordAdmin){
     const passwordAdmin = req.body.passwordAdmin;
     try {
-      const user =await User.findOne({ where: { email: "admin@admin.com" } });
+      const user =await User.findOne({ where: { email: "administrator@admin.com" } });
       try {
         const validation = await bcrypt.compare(passwordAdmin, user.password);
         console.log(validation);
@@ -42,7 +42,6 @@ module.exports = async (req, res, next) => {
     });
 }
   } else if (role == "user") {
-    console.log("bonjour");
       next();
   }else{
     res

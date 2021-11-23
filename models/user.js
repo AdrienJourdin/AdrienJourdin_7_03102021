@@ -18,6 +18,9 @@ module.exports = (sequelize, Sequelize) => {
         unique: true,
         isEmail: true,
       },
+      imageUrl:{
+        type: Sequelize.STRING,
+      },
       role: {
         type: Sequelize.STRING,
         isAlphanumeric: true,

@@ -7,6 +7,8 @@ const recupUserId = require("../middleware/recupUserIdWithToken");
 
 exports.create = async (req, res) => {
     const userId = recupUserId.recupUserIdWithToken(req);
+    const postObject=req.body.post;
+    console.log(postObject);
   //Vérification de l'existence de l'utilisateur
   User.findOne({ where: { id: userId } })
     .then((user) => {
@@ -24,9 +26,9 @@ exports.create = async (req, res) => {
 
   //Si il existe => appel de la fonction de création
   Post.create({
-    title: req.body.title,
-    content: req.body.content,
+    content: postObject,
     userId: userId,
+    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   })
     .then((post) => {
       res.status(200).send({
@@ -43,7 +45,7 @@ exports.create = async (req, res) => {
 
 exports.getAll = (req, res) => {
   Post.findAll({
-    attributes: ["id", "title", "content", "createdAt"],
+    attributes: ["id", "content","imageUrl", "createdAt"],
     order: [["createdAt", "DESC"]],
     include: [
       {
@@ -130,11 +132,14 @@ exports.update = (req, res) => {
           .status(400)
           .send({ message: "Publication id=" + postId + " Introuvable" });
       } else {
+        const postObject=req.file ? 
+
+        {
+          ...JSON.parse(req.body.post),
+          imageUrl:`${req.protocol}://${req.get('host')}/images/post/${req.file.filename}`
+        } :{...req.body};
         Post.update(
-          {
-            title: req.body.title,
-            content: req.body.content,
-          },
+            ...postObject,
           { where: { id: postId } }
         )
           .then(() => {
@@ -219,3 +224,41 @@ exports.getLatest = (req, res) => {
       })
     );
 };
+
+exports.getGroupOfPosts =(req,res)=>{
+  Post.findAll({
+    limit: req.body.numberOfPosts,
+    offset:req.body.offset,
+    order: [["createdAt", "DESC"]],
+    include: [
+      {
+        model: User,
+        attributes: ["id", "lastName", "firstName"],
+      },
+      {
+        model: Like,
+        include: {
+          model: User,
+          attributes: ["id", "lastName", "firstName"],
+        },
+      },
+      {
+        model: Comment,
+        attributes: ["id", "content"],
+        include: {
+          model: User,
+          attributes: ["id", "firstName", "lastName"],
+        },
+      },
+    ],
+  })
+    .then((posts) => {
+      res.status(200).send(posts);
+    })
+    .catch((error) =>
+      res.status(400).send({
+        message: "Erreur lors du chargement des dernieres publications",
+        error,
+      })
+    );
+}

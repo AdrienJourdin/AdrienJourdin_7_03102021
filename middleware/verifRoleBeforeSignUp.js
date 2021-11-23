@@ -3,11 +3,12 @@ const db = require("../models");
 const User = db.user;
 
 module.exports = async (req, res, next) => {
-  const role = req.body.role;
-
+  const infosObject=JSON.parse(req.body.user);
+  const role = infosObject.role;
+  console.log(req.file);
   if (role == "admin") {
-      if(req.body.passwordAdmin){
-    const passwordAdmin = req.body.passwordAdmin;
+      if(infosObject.passwordAdmin){
+    const passwordAdmin = infosObject.passwordAdmin;
     try {
       const user =await User.findOne({ where: { email: "administrator@admin.com" } });
       try {

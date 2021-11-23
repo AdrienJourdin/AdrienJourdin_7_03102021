@@ -3,11 +3,13 @@ const User = db.user;
 const recupUserId = require("../middleware/recupUserIdWithToken");
 //Middleware qui vérifier si les infos sont correctes et si l'email n'existe pas deja en BDD
 module.exports = async (req, res, next) => {
-  const lastName = req.body.lastName;
-  const firstName = req.body.firstName;
-  const email = req.body.email;
-  const password = req.body.password;
-  const role = req.body.role;
+  const infosObject = JSON.parse(req.body.user);
+
+  const lastName = infosObject.lastName;
+  const firstName = infosObject.firstName;
+  const email = infosObject.email;
+  const password = infosObject.password;
+  const role = infosObject.role;
 
   //Regex de l'email
   const regexEmail =
@@ -26,7 +28,7 @@ module.exports = async (req, res, next) => {
     } else if (!regexPassword.test(password)) {
       res.status(400).send({ message: "Mot de passe incorrect" });
     } else {
-      User.findOne({ where: { email: req.body.email } })
+      User.findOne({ where: { email:email } })
         .then((user) => {
           if (user) {
 
@@ -43,7 +45,7 @@ module.exports = async (req, res, next) => {
             error,
             message:
               "Erreur lors de la recherche d'utilisateur avec l'email :" +
-              req.body.email,
+              infosObject.email,
           });
         });
     }

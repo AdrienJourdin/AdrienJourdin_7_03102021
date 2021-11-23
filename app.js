@@ -3,7 +3,7 @@ const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
 const db = require("./models");
 bodyParser = require('body-parser');
-
+const path = require('path');
 //Création de l'app
 const app = express();
 
@@ -14,7 +14,9 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     next();
   });
+
   app.use(bodyParser.json());
+  app.use('/images', express.static(path.join(__dirname, 'images')));
   app.use('/api/user', userRoutes);
   app.use('/api/post',postRoutes);
 

@@ -12,9 +12,8 @@ exports.signup = (req, res) => {
   const userObject = JSON.parse(req.body.user);
   //Hashage du mot de passe
   bcrypt.hash(userObject.password, 10).then((hash) => {
-    console.log(userObject);
     // Sauvegarde de l'user dans ma database
-
+    const nom_fichier=req.file ? req.file.filename:"photo-unknow.jpg";
 
 
     User.create({
@@ -22,7 +21,7 @@ exports.signup = (req, res) => {
       firstName: userObject.firstName,
       password: hash,
       email: userObject.email,
-      imageUrl:`${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+      imageUrl:`${req.protocol}://${req.get('host')}/images/${nom_fichier}`,
       role: userObject.role,
       }
     )
@@ -102,27 +101,21 @@ exports.update = (req, res) => {
   bcrypt
     .hash(userObject.password, 10)
     .then((hash) => {
-      const user = req.file
-        ? {
-          lastName: userObject.lastName,
-          firstName: userObject.firstName,
-          password: hash,
-          email: userObject.email,
-          imageUrl: `${req.protocol}://${req.get("host")}/images/user/${
-            req.file.filename
-          }`,
-          role: userObject.role,
-          }
-        : {
-          lastName: userObject.lastName,
-          firstName: userObject.firstName,
-          password: hash,
-          email: userObject.email,
-          role: userObject.role,
-        };
+        if(req.file.filename){
+          const nom_fichier=req.file.filename;
+        }else{
+          const nom_fichier="photo-unknow.jpg"
+        }
       User.update(
         {
-          user,
+          
+            lastName: userObject.lastName,
+            firstName: userObject.firstName,
+            password: hash,
+            email: userObject.email,
+            imageUrl:`${req.protocol}://${req.get('host')}/images/${nom_fichier}`,
+            role: userObject.role,
+            
         },
         { where: { id: userId } }
       )
@@ -148,11 +141,11 @@ exports.getOne = (req, res) => {
   const userId = req.params.userId;
   User.findOne({
     where: { id: userId },
-    attributes: ["id", "lastName", "firstName", "email"],
+    attributes: ["id", "lastName", "firstName", "email",'imageUrl'],
     includes: [
       {
         model: Post,
-        attributes: ["id", "title", "content", "createdAt"],
+        attributes: ["id", "content", "imageUrl","createdAt"],
         includes: {
           model: Like,
         },
@@ -165,7 +158,7 @@ exports.getOne = (req, res) => {
         attributes: ["id", "content"],
         includes: {
           model: User,
-          attributes: ["id", "lastName", "firstName"],
+          attributes: ["id", "lastName", "firstName","imageUrl"],
         },
       },
     ],
@@ -183,7 +176,7 @@ exports.getOne = (req, res) => {
 
 exports.getAll = (req, res) => {
   User.findAll({
-    attributes: ["id", "lastName", "firstName", "email", "role"],
+    attributes: ["id", "lastName", "firstName", "email", "role","imageUrl"],
   })
     .then((users) => {
       res.status(200).send(users);

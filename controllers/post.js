@@ -6,9 +6,12 @@ const Comment = db.comment;
 const recupUserId = require("../middleware/recupUserIdWithToken");
 
 exports.create = async (req, res) => {
-    const userId = recupUserId.recupUserIdWithToken(req);
-    const postObject=req.body.post;
-    console.log(postObject);
+  const userId = recupUserId.recupUserIdWithToken(req);
+  const postObject = req.body.post;
+  const nom_fichier_post = req.file
+    ? `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
+    : "";
+  console.log(postObject);
   //Vérification de l'existence de l'utilisateur
   User.findOne({ where: { id: userId } })
     .then((user) => {
@@ -28,7 +31,7 @@ exports.create = async (req, res) => {
   Post.create({
     content: postObject,
     userId: userId,
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    imageUrl: nom_fichier_post,
   })
     .then((post) => {
       res.status(200).send({
@@ -45,12 +48,12 @@ exports.create = async (req, res) => {
 
 exports.getAll = (req, res) => {
   Post.findAll({
-    attributes: ["id", "content","imageUrl", "createdAt"],
+    attributes: ["id", "content", "imageUrl", "createdAt"],
     order: [["createdAt", "DESC"]],
     include: [
       {
         model: User,
-        attributes: ["id", "lastName", "firstName"],
+        attributes: ["id", "lastName", "firstName", "imageUrl"],
       },
       {
         model: Like,
@@ -64,7 +67,7 @@ exports.getAll = (req, res) => {
         attributes: ["id", "content"],
         include: {
           model: User,
-          attributes: ["id", "firstName", "lastName"],
+          attributes: ["id", "firstName", "lastName", "imageUrl"],
         },
       },
     ],
@@ -80,12 +83,13 @@ exports.getAll = (req, res) => {
 };
 
 exports.getOne = (req, res) => {
+  console.log(req.params.postId, typeof req.params.postId);
   Post.findOne({
     where: { id: req.params.postId },
     include: [
       {
         model: User,
-        attributes: ["id", "lastName", "firstName"],
+        attributes: ["id", "lastName", "firstName", "ImageUrl"],
       },
       {
         model: Like,
@@ -99,7 +103,7 @@ exports.getOne = (req, res) => {
         attributes: ["id", "content"],
         include: {
           model: User,
-          attributes: ["id", "firstName", "lastName"],
+          attributes: ["id", "firstName", "lastName", "imageUrl"],
         },
       },
     ],
@@ -123,46 +127,49 @@ exports.getOne = (req, res) => {
 
 exports.update = (req, res) => {
   const postId = req.params.postId;
-
-  Post.findOne({ where: { id: postId } })
-    .then((post) => {
-      //Si il n'existe pas => renvoi d'un message d'erreur
-      if (!post) {
-        return res
-          .status(400)
-          .send({ message: "Publication id=" + postId + " Introuvable" });
-      } else {
-        const postObject=req.file ? 
-
-        {
-          ...JSON.parse(req.body.post),
-          imageUrl:`${req.protocol}://${req.get('host')}/images/post/${req.file.filename}`
-        } :{...req.body};
-        Post.update(
-            ...postObject,
-          { where: { id: postId } }
-        )
-          .then(() => {
-            res.status(200).json({
-              status: true,
-              message: "Mise a jour de la publication id = " + postId,
-            });
-          })
-          .catch((error) =>
-            res.status(500).send({
-              message:
-                "Erreur lors de la mise à jour de la publication id=" + postId,
-              error,
-            })
-          );
-      }
-    })
-    .catch((error) => {
-      res.status(500).send({
-        error,
-        message: "Erreur lors de la recherche de la publication id=" + postId,
+  const content = req.body.content;
+  if(req.file){
+  Post.update(
+    {
+      content: content,
+      imageUrl: `${req.protocol}://${req.get("host")}/images/${
+        req.file.filename
+      }`,
+    },
+    { where: { id: postId } }
+  )
+    .then(() => {
+      res.status(200).json({
+        status: true,
+        message: "Mise a jour de la publication id = " + postId,
       });
-    });
+    })
+    .catch((error) =>
+      res.status(500).send({
+        message: "Erreur lors de la mise à jour de la publication id=" + postId,
+        error,
+      })
+    );
+  }else{
+    Post.update(
+      {
+        content: content,
+      },
+      { where: { id: postId } }
+    )
+      .then(() => {
+        res.status(200).json({
+          status: true,
+          message: "Mise a jour de la publication id = " + postId,
+        });
+      })
+      .catch((error) =>
+        res.status(500).send({
+          message: "Erreur lors de la mise à jour de la publication id=" + postId,
+          error,
+        })
+      );
+  }
 };
 
 exports.delete = (req, res) => {
@@ -195,7 +202,7 @@ exports.getLatest = (req, res) => {
     include: [
       {
         model: User,
-        attributes: ["id", "lastName", "firstName"],
+        attributes: ["id", "lastName", "firstName", "imageUrl"],
       },
       {
         model: Like,
@@ -209,7 +216,7 @@ exports.getLatest = (req, res) => {
         attributes: ["id", "content"],
         include: {
           model: User,
-          attributes: ["id", "firstName", "lastName"],
+          attributes: ["id", "firstName", "lastName", "imageUrl"],
         },
       },
     ],
@@ -225,15 +232,15 @@ exports.getLatest = (req, res) => {
     );
 };
 
-exports.getGroupOfPosts =(req,res)=>{
+exports.getGroupOfPosts = (req, res) => {
   Post.findAll({
     limit: req.body.numberOfPosts,
-    offset:req.body.offset,
+    offset: req.body.offset,
     order: [["createdAt", "DESC"]],
     include: [
       {
         model: User,
-        attributes: ["id", "lastName", "firstName"],
+        attributes: ["id", "lastName", "firstName", "imageUrl"],
       },
       {
         model: Like,
@@ -247,7 +254,7 @@ exports.getGroupOfPosts =(req,res)=>{
         attributes: ["id", "content"],
         include: {
           model: User,
-          attributes: ["id", "firstName", "lastName"],
+          attributes: ["id", "firstName", "lastName", "imageUrl"],
         },
       },
     ],
@@ -261,4 +268,4 @@ exports.getGroupOfPosts =(req,res)=>{
         error,
       })
     );
-}
+};

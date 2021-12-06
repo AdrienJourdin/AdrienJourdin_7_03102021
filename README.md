@@ -16,7 +16,7 @@ Clonez le repository en installant des dépendances qui sont listées dans le fi
 - Installer npm et nodemon
 
 
-- Ouvrez un terminal dans le dossier BACK et tapez la ligne suivante:
+- Ouvrez un terminal dans le dossier BACK et tapez la ligne suivante pour lancer le serveur:
 
 `nodemon server.js`
 

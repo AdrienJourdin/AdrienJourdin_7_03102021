@@ -20,7 +20,7 @@ Clonez le repository en installant des dépendances qui sont listées dans le fi
 `node_modules/.bin/sequelize db:seed:all`
 
 
-- Installer npm 
+- Installer npm et nodemon
 
 - Ouvrez un terminal dans le dossier BACK et tapez la ligne suivante pour lancer le serveur:
 

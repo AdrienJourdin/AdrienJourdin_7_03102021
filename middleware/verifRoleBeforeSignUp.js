@@ -10,32 +10,37 @@ module.exports = async (req, res, next) => {
     const passwordAdmin = infosObject.passwordAdmin;
     try {
       const user =await User.findOne({ where: { email: "admin@admin.com" } });
+      bcrypt.hash(passwordAdmin, 10).then(password=>{
+        console.log(password)
+      }
+
+      )
       try {
         const validation = await bcrypt.compare(passwordAdmin, user.password);
         if (!validation) {
           res
-            .status(404)
+            .status(400)
             .send({ message: "Code confidentiel Admin incorrect" });
         } else {
           next();
         }
       } catch {
         res
-          .status(404)
+          .status(400)
           .send({
             message: "Erreur lors de la comparaison des mot de passes admin",
           });
       }
     } catch {
       res
-        .status(404)
+        .status(400)
         .send({
           message: "Erreur lors de la recherche des infos du compte admin",
         });
     }
 }else{
     res
-    .status(401)
+    .status(400)
     .send({
       message: "Veuillez rentrer le code confidentiel",
     });
@@ -44,7 +49,7 @@ module.exports = async (req, res, next) => {
       next();
   }else{
     res
-    .status(401)
+    .status(400)
     .send({
       message: "Role incorrect",
     });

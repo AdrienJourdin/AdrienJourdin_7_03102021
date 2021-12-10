@@ -11,7 +11,6 @@ exports.create = async (req, res) => {
   const nom_fichier_post = req.file
     ? `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
     : "";
-  console.log(postObject);
   //Vérification de l'existence de l'utilisateur
   User.findOne({ where: { id: userId } })
     .then((user) => {

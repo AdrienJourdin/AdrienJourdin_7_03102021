@@ -21,7 +21,7 @@ app.use((req, res, next) => {
   app.use('/api/post',postRoutes);
 
 
-  db.sequelize.sync({ alter: true });
+  db.sequelize.sync({alter:true });
 
 //Export de l'app  
 module.exports = app;
